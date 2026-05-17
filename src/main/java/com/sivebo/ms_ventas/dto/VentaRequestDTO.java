@@ -22,7 +22,7 @@ public class VentaRequestDTO {
         Long  idSucursal;
 
         @NotNull(message="fecha es obligatorio")
-        LocalDateTime fecha;
+        LocalDateTime fechaHora;
 
         @NotNull(message="subtotal es obligatorio")
         Long subtotal;

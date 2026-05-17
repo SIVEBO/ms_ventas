@@ -33,7 +33,7 @@ public class Venta {
         Long  idSucursal;
 
         @Column(nullable=false)
-        LocalDateTime fecha;
+        LocalDateTime fechaHora;
 
         @Column(nullable=false)
         Long subtotal;

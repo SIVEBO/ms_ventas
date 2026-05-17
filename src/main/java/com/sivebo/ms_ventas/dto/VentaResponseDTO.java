@@ -15,6 +15,6 @@ public class VentaResponseDTO {
         Long nroBoleta;
         Long idUsuarioVta;
         Long  idSucursal;
-        LocalDateTime fecha;
+        LocalDateTime fechaHora;
         Long subtotal;
 }
