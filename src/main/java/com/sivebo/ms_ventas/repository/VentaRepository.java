@@ -20,8 +20,8 @@ public interface VentaRepository extends JpaRepository<Venta, Object>{
 
         List<Venta> findBySubtotalBetween(Long min, Long max);
 
-        List<Venta> findBySubtotalMin(Long min);
+        List<Venta> findBySubtotalLessThanEqual(Long max);
 
-        List<Venta> findBySubtotalMax(Long max);
+        List<Venta> findBySubtotalGreaterThanEqual(Long min);
 
 }

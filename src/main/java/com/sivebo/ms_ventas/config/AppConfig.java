@@ -20,7 +20,7 @@ public class AppConfig {
         }
 
         @Bean
-        public WebClient usuariosoWebClient(WebClient.Builder webClientBuilder) {
+        public WebClient usuarioWebClient(WebClient.Builder webClientBuilder) {
                 return webClientBuilder
                         .baseUrl(usuariosBaseUrl)
                         .build();

@@ -79,12 +79,12 @@ public class VentaService {
         }
 
         public List<VentaResponseDTO> getBySubtotalMin(Long min){
-                return ventaRepository.findBySubtotalMin(min)
+                return ventaRepository.findBySubtotalGreaterThanEqual(min)
                         .stream().map(this::mapToDTO).toList();
         }
 
         public List<VentaResponseDTO> getBySubtotalMax(Long max){
-                return ventaRepository.findBySubtotalMin(max)
+                return ventaRepository.findBySubtotalLessThanEqual(max)
                         .stream().map(this::mapToDTO).toList();
         }
         
