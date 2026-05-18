@@ -27,7 +27,6 @@ public class VentaService {
         private final VentaRepository ventaRepository;
         private final WebClientUtil webClientUtil;
 
-        
         @Qualifier("usuarioWebClient")
         private final WebClient usuarioWebClient;
 
