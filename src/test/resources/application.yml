@@ -18,8 +18,8 @@ eureka:
 
 ms:
   usuarios:
-    url: http://localhost:9999
+    url: http://localhost:8001
   sucursales:
-    url: http://localhost:9998
+    url: http://localhost:8002
   inventario:
-    url: http://localhost:9997
+    url: http://localhost:8006

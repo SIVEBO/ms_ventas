@@ -17,7 +17,7 @@ spring:
           sql: true
 
 server:
-  port: 8084
+  port: 8007
 
 eureka:
   client:
@@ -37,8 +37,8 @@ logging:
 
 ms:
   usuarios:
-    url: ${MS_USUARIOS_URL:http://localhost:8086}
+    url: ${MS_USUARIOS_URL:http://localhost:8001}
   sucursales:
-    url: ${MS_SUCURSALES_URL:http://localhost:8083}
+    url: ${MS_SUCURSALES_URL:http://localhost:8002}
   inventario:
-    url: ${MS_INVENTARIO_URL:http://localhost:8085}
+    url: ${MS_INVENTARIO_URL:http://localhost:8006}
