@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,26 +18,35 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name= "venta")
+@Table(name = "VENTA")
 public class Venta {
 
         @Id
-        @GeneratedValue(strategy=GenerationType.IDENTITY)
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         Long id;
 
-        @Column(name="nro_boleta", nullable=false, unique=true)
+        @Column(name = "nro_boleta", nullable = false, unique = true)
         Long nroBoleta;
-        
-        @Column(name="id_usuario_vta", nullable=false)
-        Long idUsuarioVta;
 
-        @Column(name="id_sucursal", nullable=false)
-        Long  idSucursal;
+        @Column(name = "id_usuario", nullable = false)
+        Long idUsuario;
 
-        @Column(nullable=false)
-        LocalDateTime fechaHora;
+        @Column(name = "id_sucursal", nullable = false)
+        Long idSucursal;
 
-        @Column(nullable=false)
+        @Column(name = "fecha_vta", nullable = false)
+        LocalDateTime fechaVta;
+
+        @Column(name = "subtotal", nullable = false)
         Long subtotal;
-        
+
+        @Column(name = "iva", nullable = false)
+        Long iva;
+
+        @Column(name = "total", nullable = false)
+        Long total;
+
+        @Column(name = "estado", nullable = false)
+        @Enumerated(EnumType.STRING)
+        TipoEstadoVenta estado;
 }

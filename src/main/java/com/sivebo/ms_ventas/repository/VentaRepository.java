@@ -6,22 +6,22 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.sivebo.ms_ventas.model.TipoEstadoVenta;
 import com.sivebo.ms_ventas.model.Venta;
 
-public interface VentaRepository extends JpaRepository<Venta, Object>{
-        
+public interface VentaRepository extends JpaRepository<Venta, Long> {
+
         Optional<Venta> findByNroBoleta(Long nroBoleta);
 
+        List<Venta> findByIdUsuario(Long idUsuario);
+
         List<Venta> findByIdSucursal(Long idSucursal);
-        
-        List<Venta> findByIdUsuarioVta(Long idUsuarioVta);
 
-        List<Venta> findByFechaHoraBetween(LocalDateTime comienzo, LocalDateTime fin);
+        List<Venta> findByIdSucursalAndEstado(Long idSucursal, TipoEstadoVenta estado);
 
-        List<Venta> findBySubtotalBetween(Long min, Long max);
+        List<Venta> findByIdSucursalAndFechaVtaBetween(
+                Long idSucursal, LocalDateTime desde, LocalDateTime hasta);
 
-        List<Venta> findBySubtotalLessThanEqual(Long max);
-
-        List<Venta> findBySubtotalGreaterThanEqual(Long min);
-
+        List<Venta> findByIdSucursalAndFechaVtaBetweenAndEstado(
+                Long idSucursal, LocalDateTime desde, LocalDateTime hasta, TipoEstadoVenta estado);
 }
