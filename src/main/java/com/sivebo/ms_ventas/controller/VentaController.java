@@ -82,22 +82,22 @@ public class VentaController {
         })
         @GetMapping("/buscar")
         public ResponseEntity<?> buscar(
-                @RequestParam(required = false) String nro_boleta,
-                @RequestParam(required = false) String id_usuario) {
+                @RequestParam(required = false) String nroBoleta,
+                @RequestParam(required = false) String idUsuario) {
 
-                long provided = Stream.of(nro_boleta, id_usuario).filter(Objects::nonNull).count();
+                long provided = Stream.of(nroBoleta, idUsuario).filter(Objects::nonNull).count();
 
                 if (provided == 0) {
                         return ResponseEntity.badRequest().body("Debe proporcionar un atributo de búsqueda válido");
                 } else if (provided > 1) {
                         return ResponseEntity.badRequest().body("Solo se permite un atributo de búsqueda a la vez");
-                } else if (nro_boleta != null) {
-                        log.info(">>> Buscando venta por nro_boleta: {}", nro_boleta);
-                        return ventaService.getByNroBoleta(Long.valueOf(nro_boleta))
+                } else if (nroBoleta != null) {
+                        log.info(">>> Buscando venta por nroBoleta: {}", nroBoleta);
+                        return ventaService.getByNroBoleta(Long.valueOf(nroBoleta))
                                 .map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
                 } else {
-                        log.info(">>> Buscando ventas por id_usuario: {}", id_usuario);
-                        return ResponseEntity.ok(ventaService.getByIdUsuario(Long.valueOf(id_usuario)));
+                        log.info(">>> Buscando ventas por idUsuario: {}", idUsuario);
+                        return ResponseEntity.ok(ventaService.getByIdUsuario(Long.valueOf(idUsuario)));
                 }
         }
 

@@ -19,34 +19,34 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class WebClientUtil {
 
-        public void validateMicroServiceById(Long id, String name_service, WebClient webClient) {
+        public void validateMicroServiceById(Long id, String nameService, WebClient webClient) {
                 try {
                         webClient.get()
-                                .uri("/api/v1/" + name_service + "/{id}", id)
+                                .uri("/api/v1/" + nameService + "/{id}", id)
                                 .retrieve()
                                 .bodyToMono(String.class)
                                 .block();
-                        log.info(">>> {} {} validado correctamente (WebClient)", name_service, id);
+                        log.info(">>> {} {} validado correctamente (WebClient)", nameService, id);
                 } catch (WebClientResponseException.NotFound e) {
                         throw new MicroserviceValidationException(
-                                name_service + " con id " + id + " no existe en el microservicio.");
+                                nameService + " con id " + id + " no existe en el microservicio.");
                 } catch (Exception e) {
                         throw new MicroserviceUnavailableException(
                                 "No se pudo conectar con el microservicio: " + e.getMessage());
                 }
         }
 
-        public void validateMicroServiceByQuery(String name_service, String query, String value, WebClient webClient) {
+        public void validateMicroServiceByQuery(String nameService, String query, String value, WebClient webClient) {
                 try {
                         webClient.get()
-                                .uri("/api/v1/" + name_service + "/search?" + query + "=" + value)
+                                .uri("/api/v1/" + nameService + "/search?" + query + "=" + value)
                                 .retrieve()
                                 .bodyToMono(String.class)
                                 .block();
-                        log.info(">>> {} {} validado correctamente (WebClient)", name_service, value);
+                        log.info(">>> {} {} validado correctamente (WebClient)", nameService, value);
                 } catch (WebClientResponseException.NotFound e) {
                         throw new MicroserviceValidationException(
-                                name_service + " con " + query + "=" + value + " no existe en el microservicio.");
+                                nameService + " con " + query + "=" + value + " no existe en el microservicio.");
                 } catch (Exception e) {
                         throw new MicroserviceUnavailableException(
                                 "No se pudo conectar con el microservicio: " + e.getMessage());
@@ -83,7 +83,7 @@ public class WebClientUtil {
         public Boolean verificarStock(Long idArt, Long idSucursal, Integer cantidad, WebClient webClient) {
                 try {
                         Boolean result = webClient.get()
-                                .uri("/api/stock/verificar?idArt={idArt}&idSucursal={idSucursal}&cantidadRequerida={cantidad}",
+                                .uri("/api/v1/stock/verificar?idArt={idArt}&idSucursal={idSucursal}&cantidadRequerida={cantidad}",
                                         idArt, idSucursal, cantidad)
                                 .retrieve()
                                 .bodyToMono(Boolean.class)
@@ -100,7 +100,7 @@ public class WebClientUtil {
         public void descontarStock(Long idArt, Long idSucursal, Integer cantidad, WebClient webClient) {
                 try {
                         webClient.patch()
-                                .uri("/api/stock/descontar?idArt={idArt}&idSucursal={idSucursal}&cantidad={cantidad}",
+                                .uri("/api/v1/stock/descontar?idArt={idArt}&idSucursal={idSucursal}&cantidad={cantidad}",
                                         idArt, idSucursal, cantidad)
                                 .retrieve()
                                 .bodyToMono(String.class)
@@ -115,7 +115,7 @@ public class WebClientUtil {
         public Optional<Long> resolveIdSesionAbierta(Long idSucursal, WebClient webClient) {
                 try {
                         Map<String, Object> caja = webClient.get()
-                                .uri("/api/cajas/sucursal/{idSucursal}", idSucursal)
+                                .uri("/api/v1/cajas/sucursal/{idSucursal}", idSucursal)
                                 .retrieve()
                                 .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
                                 .block();
@@ -123,7 +123,7 @@ public class WebClientUtil {
                         Long idCaja = ((Number) caja.get("idCaja")).longValue();
 
                         Map<String, Object> sesion = webClient.get()
-                                .uri("/api/aperturas/caja/{idCaja}/abierta", idCaja)
+                                .uri("/api/v1/aperturas/caja/{idCaja}/abierta", idCaja)
                                 .retrieve()
                                 .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
                                 .block();
@@ -145,7 +145,7 @@ public class WebClientUtil {
                                 "idReferenciaVta", idVenta
                         );
                         webClient.post()
-                                .uri("/api/movimientos")
+                                .uri("/api/v1/movimientos")
                                 .bodyValue(body)
                                 .retrieve()
                                 .bodyToMono(String.class)
