@@ -38,6 +38,12 @@ public class VentaService {
         @Qualifier("sucursalWebClient")
         private final WebClient sucursalWebClient;
 
+        @Qualifier("articuloWebClient")
+        private final WebClient articuloWebClient;
+
+        @Qualifier("finanzasWebClient")
+        private final WebClient finanzasWebClient;
+
         private VentaResponseDTO mapToDTO(Venta venta) {
                 return new VentaResponseDTO(
                         venta.getId(),
@@ -95,6 +101,19 @@ public class VentaService {
                 webClientUtil.validateMicroServiceById(dto.getIdUsuario(), "usuarios", usuarioWebClient);
                 webClientUtil.validateMicroServiceById(dto.getIdSucursal(), "sucursales", sucursalWebClient);
 
+                // RF-29: verify stock for every embalaje article before committing anything
+                for (DetalleVentaRequestDTO d : dto.getDetalles()) {
+                        if (d.getIdArticulo() != null) {
+                                Boolean ok = webClientUtil.verificarStock(
+                                        d.getIdArticulo(), dto.getIdSucursal(), d.getCantidadArt(), articuloWebClient);
+                                if (!ok) {
+                                        throw new MicroserviceValidationException(
+                                                "Stock insuficiente para artículo " + d.getIdArticulo()
+                                                + " en sucursal " + dto.getIdSucursal());
+                                }
+                        }
+                }
+
                 long subtotal = dto.getDetalles().stream().mapToLong(d ->
                         (long) d.getCantidadArt() * d.getPrecioUnitHistoricoArt()
                         + (d.getPrecioAdmision() != null ? d.getPrecioAdmision() : 0L)
@@ -113,10 +132,21 @@ public class VentaService {
                                 null, saved, d.getIdArticulo(), d.getIdAdmision(),
                                 d.getCantidadArt(), d.getPrecioUnitHistoricoArt(), d.getPrecioAdmision()
                         ));
+                        // RF-28: decrement stock after saving the line
+                        if (d.getIdArticulo() != null) {
+                                webClientUtil.descontarStock(
+                                        d.getIdArticulo(), dto.getIdSucursal(), d.getCantidadArt(), articuloWebClient);
+                        }
                 }
 
                 log.info(">>> Venta {} creada con nroBoleta={}, subtotal={}, iva={}, total={}",
                         saved.getId(), nroBoleta, subtotal, iva, total);
+
+                // RF-37: register INGRESO movimiento in the branch caja (non-blocking if no open session)
+                webClientUtil.resolveIdSesionAbierta(dto.getIdSucursal(), finanzasWebClient)
+                        .ifPresent(idSesion -> webClientUtil.registrarMovimiento(
+                                idSesion, "INGRESO", saved.getTotal(), saved.getId(), finanzasWebClient));
+
                 return mapToDTO(saved);
         }
 
@@ -126,8 +156,15 @@ public class VentaService {
                 Venta venta = ventaRepository.findById(id)
                         .orElseThrow(() -> new MicroserviceValidationException("Venta con id " + id + " no encontrada"));
                 venta.setEstado(TipoEstadoVenta.ANULADA);
+                Venta saved = ventaRepository.save(venta);
                 log.info(">>> Venta {} anulada por usuario {}", id, idUsuario);
-                return mapToDTO(ventaRepository.save(venta));
+
+                // RF-34: register EGRESO movimiento to reverse the original INGRESO
+                webClientUtil.resolveIdSesionAbierta(saved.getIdSucursal(), finanzasWebClient)
+                        .ifPresent(idSesion -> webClientUtil.registrarMovimiento(
+                                idSesion, "EGRESO", saved.getTotal(), saved.getId(), finanzasWebClient));
+
+                return mapToDTO(saved);
         }
 
         @Transactional

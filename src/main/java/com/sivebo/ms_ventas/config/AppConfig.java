@@ -17,6 +17,9 @@ public class AppConfig {
         @Value("${ms.inventario.url}")
         private String inventarioBaseUrl;
 
+        @Value("${ms.finanzas.url}")
+        private String finanzasBaseUrl;
+
         @Bean
         public WebClient.Builder webClientBuilder() {
                 return WebClient.builder();
@@ -35,5 +38,10 @@ public class AppConfig {
         @Bean
         public WebClient articuloWebClient(WebClient.Builder webClientBuilder) {
                 return webClientBuilder.baseUrl(inventarioBaseUrl).build();
+        }
+
+        @Bean
+        public WebClient finanzasWebClient(WebClient.Builder webClientBuilder) {
+                return webClientBuilder.baseUrl(finanzasBaseUrl).build();
         }
 }
