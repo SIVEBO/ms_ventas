@@ -79,6 +79,48 @@ public class WebClientUtil {
                 }
         }
 
+        // ms_sucursales no expone GET /{id} (solo PUT/PATCH); la búsqueda por id es vía
+        // /buscar?id= (mismo patrón que usa ms_admision). Valida que la sucursal exista.
+        public void validateSucursalExiste(Long id, WebClient webClient) {
+                try {
+                        webClient.get()
+                                .uri("/api/v1/sucursales/buscar?id={id}", id)
+                                .retrieve()
+                                .bodyToMono(String.class)
+                                .block();
+                        log.info(">>> sucursal {} validada correctamente (WebClient)", id);
+                } catch (WebClientResponseException.NotFound e) {
+                        throw new MicroserviceValidationException(
+                                "sucursal con id " + id + " no existe en el microservicio.");
+                } catch (Exception e) {
+                        throw new MicroserviceUnavailableException(
+                                "No se pudo conectar con el microservicio: " + e.getMessage());
+                }
+        }
+
+        // RF-33: resolves the authoritative unit price from ms_embalaje at sale time,
+        // so the persisted historic price cannot be tampered with by the client.
+        public Long resolvePrecioArticulo(Long idArt, WebClient webClient) {
+                try {
+                        Map<String, Object> response = webClient.get()
+                                .uri("/api/v1/articulos/{id}", idArt)
+                                .retrieve()
+                                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                                .block();
+                        if (response == null || response.get("precioVta") == null) {
+                                throw new MicroserviceValidationException(
+                                        "Artículo con id " + idArt + " no encontrado o sin precio de venta");
+                        }
+                        return new BigDecimal(String.valueOf(response.get("precioVta"))).longValue();
+                } catch (MicroserviceValidationException e) {
+                        throw e;
+                } catch (WebClientResponseException.NotFound e) {
+                        throw new MicroserviceValidationException("Artículo con id " + idArt + " no encontrado");
+                } catch (Exception e) {
+                        throw new MicroserviceUnavailableException("No se pudo conectar con ms_embalaje: " + e.getMessage());
+                }
+        }
+
         // RF-29: returns true if the branch has sufficient stock for the article
         public Boolean verificarStock(Long idArt, Long idSucursal, Integer cantidad, WebClient webClient) {
                 try {

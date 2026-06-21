@@ -29,18 +29,8 @@ springdoc:
     enabled: true
   swagger-ui:
     enabled: true
-    path: /doc/swagger-ui.html
+    path: /swagger-ui.html
 
 logging:
   level:
     org.hibernate.orm.jdbc.bind: ${HIBERNATE_BIND_LOG:OFF}
-
-ms:
-  usuarios:
-    url: ${MS_USUARIOS_URL:http://localhost:8081}
-  sucursales:
-    url: ${MS_SUCURSALES_URL:http://localhost:8082}
-  inventario:
-    url: ${MS_INVENTARIO_URL:http://localhost:8086}
-  finanzas:
-    url: ${MS_FINANZAS_URL:http://localhost:8088}

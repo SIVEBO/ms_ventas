@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -123,6 +124,7 @@ class VentaServiceTest {
 
         doNothing().when(webClientUtil).validateMicroServiceById(anyLong(), anyString(), any());
         when(webClientUtil.verificarStock(eq(1L), eq(10L), eq(2), any(WebClient.class))).thenReturn(true);
+        when(webClientUtil.resolvePrecioArticulo(eq(1L), any(WebClient.class))).thenReturn(5000L);
         when(ventaRepository.count()).thenReturn(0L);
         when(ventaRepository.save(any(Venta.class))).thenReturn(VENTA_ACTIVA);
         when(detalleVentaRepository.save(any(DetalleVenta.class))).thenReturn(new DetalleVenta());
@@ -157,6 +159,7 @@ class VentaServiceTest {
 
         doNothing().when(webClientUtil).validateMicroServiceById(anyLong(), anyString(), any());
         when(webClientUtil.verificarStock(anyLong(), anyLong(), anyInt(), any(WebClient.class))).thenReturn(true);
+        when(webClientUtil.resolvePrecioArticulo(eq(1L), any(WebClient.class))).thenReturn(10000L);
         when(ventaRepository.count()).thenReturn(0L);
         when(ventaRepository.save(any(Venta.class))).thenReturn(VENTA_ACTIVA);
         when(detalleVentaRepository.save(any(DetalleVenta.class))).thenReturn(new DetalleVenta());
@@ -190,6 +193,34 @@ class VentaServiceTest {
         when(ventaRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(MicroserviceValidationException.class, () -> service.anular(99L, 50L));
+    }
+
+    @Test
+    void create_precioResueltoDesdeEmbalaje_ignoraPrecioDelCliente() {
+        // RF-33: el cliente envía un precio falso (1L); el servidor debe persistir
+        // el precio autoritativo resuelto desde ms_embalaje (7000L).
+        DetalleVentaRequestDTO detalle = new DetalleVentaRequestDTO(1L, null, 3, 1L, null);
+        VentaRequestDTO dto = new VentaRequestDTO(50L, 10L, FECHA, List.of(detalle));
+
+        doNothing().when(webClientUtil).validateMicroServiceById(anyLong(), anyString(), any());
+        when(webClientUtil.verificarStock(eq(1L), eq(10L), eq(3), any(WebClient.class))).thenReturn(true);
+        when(webClientUtil.resolvePrecioArticulo(eq(1L), any(WebClient.class))).thenReturn(7000L);
+        when(ventaRepository.count()).thenReturn(0L);
+        when(ventaRepository.save(any(Venta.class))).thenReturn(VENTA_ACTIVA);
+        when(detalleVentaRepository.save(any(DetalleVenta.class))).thenReturn(new DetalleVenta());
+        doNothing().when(webClientUtil).descontarStock(anyLong(), anyLong(), anyInt(), any(WebClient.class));
+        when(webClientUtil.resolveIdSesionAbierta(anyLong(), any(WebClient.class))).thenReturn(Optional.empty());
+
+        service.create(dto);
+
+        ArgumentCaptor<DetalleVenta> captor = ArgumentCaptor.forClass(DetalleVenta.class);
+        verify(detalleVentaRepository).save(captor.capture());
+        assertEquals(7000L, captor.getValue().getPrecioUnitHistoricoArt());
+
+        // y el subtotal de la Venta usa el precio resuelto (3 * 7000 = 21000), no el del cliente
+        ArgumentCaptor<Venta> ventaCaptor = ArgumentCaptor.forClass(Venta.class);
+        verify(ventaRepository).save(ventaCaptor.capture());
+        assertEquals(21000L, ventaCaptor.getValue().getSubtotal());
     }
 
     @Test

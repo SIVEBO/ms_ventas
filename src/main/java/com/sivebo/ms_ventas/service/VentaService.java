@@ -1,6 +1,7 @@
 package com.sivebo.ms_ventas.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -99,7 +100,7 @@ public class VentaService {
         @Transactional
         public VentaResponseDTO create(VentaRequestDTO dto) {
                 webClientUtil.validateMicroServiceById(dto.getIdUsuario(), "usuarios", usuarioWebClient);
-                webClientUtil.validateMicroServiceById(dto.getIdSucursal(), "sucursales", sucursalWebClient);
+                webClientUtil.validateSucursalExiste(dto.getIdSucursal(), sucursalWebClient);
 
                 // RF-29: verify stock for every embalaje article before committing anything
                 for (DetalleVentaRequestDTO d : dto.getDetalles()) {
@@ -114,10 +115,24 @@ public class VentaService {
                         }
                 }
 
-                long subtotal = dto.getDetalles().stream().mapToLong(d ->
-                        (long) d.getCantidadArt() * d.getPrecioUnitHistoricoArt()
-                        + (d.getPrecioAdmision() != null ? d.getPrecioAdmision() : 0L)
-                ).sum();
+                // RF-33: resolve the authoritative unit price from ms_embalaje (once per line),
+                // ignoring any client-supplied price for article lines.
+                List<DetalleVentaRequestDTO> detalles = dto.getDetalles();
+                List<Long> precios = new ArrayList<>(detalles.size());
+                for (DetalleVentaRequestDTO d : detalles) {
+                        if (d.getIdArticulo() != null) {
+                                precios.add(webClientUtil.resolvePrecioArticulo(d.getIdArticulo(), articuloWebClient));
+                        } else {
+                                precios.add(d.getPrecioUnitHistoricoArt() != null ? d.getPrecioUnitHistoricoArt() : 0L);
+                        }
+                }
+
+                long subtotal = 0L;
+                for (int i = 0; i < detalles.size(); i++) {
+                        DetalleVentaRequestDTO d = detalles.get(i);
+                        subtotal += (long) d.getCantidadArt() * precios.get(i)
+                                + (d.getPrecioAdmision() != null ? d.getPrecioAdmision() : 0L);
+                }
                 long iva = Math.round(subtotal * 0.19);
                 long total = subtotal + iva;
                 long nroBoleta = ventaRepository.count() + 1L;
@@ -127,10 +142,11 @@ public class VentaService {
                         dto.getFechaVta(), subtotal, iva, total, TipoEstadoVenta.ACTIVA
                 ));
 
-                for (DetalleVentaRequestDTO d : dto.getDetalles()) {
+                for (int i = 0; i < detalles.size(); i++) {
+                        DetalleVentaRequestDTO d = detalles.get(i);
                         detalleVentaRepository.save(new DetalleVenta(
                                 null, saved, d.getIdArticulo(), d.getIdAdmision(),
-                                d.getCantidadArt(), d.getPrecioUnitHistoricoArt(), d.getPrecioAdmision()
+                                d.getCantidadArt(), precios.get(i), d.getPrecioAdmision()
                         ));
                         // RF-28: decrement stock after saving the line
                         if (d.getIdArticulo() != null) {

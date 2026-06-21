@@ -1,6 +1,6 @@
 package com.sivebo.ms_ventas.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -8,40 +8,29 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class AppConfig {
 
-        @Value("${ms.usuarios.url}")
-        private String usuariosBaseUrl;
-
-        @Value("${ms.sucursales.url}")
-        private String sucursalBaseUrl;
-
-        @Value("${ms.inventario.url}")
-        private String inventarioBaseUrl;
-
-        @Value("${ms.finanzas.url}")
-        private String finanzasBaseUrl;
-
         @Bean
+        @LoadBalanced
         public WebClient.Builder webClientBuilder() {
                 return WebClient.builder();
         }
 
         @Bean
         public WebClient usuarioWebClient(WebClient.Builder webClientBuilder) {
-                return webClientBuilder.baseUrl(usuariosBaseUrl).build();
+                return webClientBuilder.baseUrl("http://ms-auth").build();
         }
 
         @Bean
         public WebClient sucursalWebClient(WebClient.Builder webClientBuilder) {
-                return webClientBuilder.baseUrl(sucursalBaseUrl).build();
+                return webClientBuilder.baseUrl("http://ms-sucursales").build();
         }
 
         @Bean
         public WebClient articuloWebClient(WebClient.Builder webClientBuilder) {
-                return webClientBuilder.baseUrl(inventarioBaseUrl).build();
+                return webClientBuilder.baseUrl("http://ms-embalaje").build();
         }
 
         @Bean
         public WebClient finanzasWebClient(WebClient.Builder webClientBuilder) {
-                return webClientBuilder.baseUrl(finanzasBaseUrl).build();
+                return webClientBuilder.baseUrl("http://ms-finanzas").build();
         }
 }

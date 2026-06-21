@@ -20,7 +20,8 @@ public class DetalleVentaRequestDTO {
         @Min(value = 1, message = "La cantidad debe ser al menos 1")
         Integer cantidadArt;
 
-        @NotNull(message = "El precio unitario histórico es obligatorio")
+        // RF-33: para líneas de artículo el precio lo resuelve el servidor desde ms_embalaje
+        // (este valor se ignora). Solo aplica como respaldo en líneas de servicio sin artículo.
         @Min(value = 0, message = "El precio unitario no puede ser negativo")
         Long precioUnitHistoricoArt;
 
