@@ -115,8 +115,6 @@ public class VentaService {
                         }
                 }
 
-                // RF-33: resolve the authoritative unit price from ms_embalaje (once per line),
-                // ignoring any client-supplied price for article lines.
                 List<DetalleVentaRequestDTO> detalles = dto.getDetalles();
                 List<Long> precios = new ArrayList<>(detalles.size());
                 for (DetalleVentaRequestDTO d : detalles) {
@@ -158,7 +156,6 @@ public class VentaService {
                 log.info(">>> Venta {} creada con nroBoleta={}, subtotal={}, iva={}, total={}",
                         saved.getId(), nroBoleta, subtotal, iva, total);
 
-                // RF-37: register INGRESO movimiento in the branch caja (non-blocking if no open session)
                 webClientUtil.resolveIdSesionAbierta(dto.getIdSucursal(), finanzasWebClient)
                         .ifPresent(idSesion -> webClientUtil.registrarMovimiento(
                                 idSesion, "INGRESO", saved.getTotal(), saved.getId(), finanzasWebClient));
@@ -175,7 +172,6 @@ public class VentaService {
                 Venta saved = ventaRepository.save(venta);
                 log.info(">>> Venta {} anulada por usuario {}", id, idUsuario);
 
-                // RF-34: register EGRESO movimiento to reverse the original INGRESO
                 webClientUtil.resolveIdSesionAbierta(saved.getIdSucursal(), finanzasWebClient)
                         .ifPresent(idSesion -> webClientUtil.registrarMovimiento(
                                 idSesion, "EGRESO", saved.getTotal(), saved.getId(), finanzasWebClient));

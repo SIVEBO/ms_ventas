@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("api/v1/ventas")
 @RequiredArgsConstructor
-@Tag(name = "Ventas", description = "Gestión de ventas y punto de venta POS (RF-30 a RF-35)")
+@Tag(name = "Ventas", description = "Gestión de ventas y punto de venta POS")
 public class VentaController {
 
         private final VentaService ventaService;
@@ -69,7 +69,7 @@ public class VentaController {
 
         @Operation(
                 summary = "Buscar venta por atributo",
-                description = "Busca por: nro_boleta o id_usuario (un parámetro a la vez)"
+                description = "Busca por: nroBoleta o idUsuario (un parámetro a la vez)"
         )
         @ApiResponses(value = {
                 @ApiResponse(responseCode = "200", description = "Resultados encontrados",
@@ -102,7 +102,7 @@ public class VentaController {
         }
 
         @Operation(
-                summary = "Consultar ventas de una sucursal (RF-35)",
+                summary = "Consultar ventas de una sucursal",
                 description = "Retorna ventas de una sucursal con filtros opcionales de rango de fecha y estado"
         )
         @ApiResponses(value = {
@@ -126,7 +126,7 @@ public class VentaController {
         }
 
         @Operation(
-                summary = "Registrar una venta (RF-30, RF-31, RF-32, RF-33)",
+                summary = "Registrar una venta",
                 description = "Crea una venta con uno o más artículos. IVA (19%), total y nroBoleta se calculan automáticamente."
         )
         @ApiResponses(value = {
@@ -146,7 +146,7 @@ public class VentaController {
         }
 
         @Operation(
-                summary = "Anular una venta (RF-34)",
+                summary = "Anular una venta",
                 description = "Cambia el estado de la venta a ANULADA. Solo usuarios con rol ADMIN o SUPERVISOR pueden anular."
         )
         @ApiResponses(value = {

@@ -1,0 +1,101 @@
+{
+  "info": {
+    "name": "ms_ventas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "SIVEBO ms_ventas — todos los endpoints via API gateway ({{baseUrl}}). Necesito un articulo activo + stock en ms_embalaje y un usario con rol ADMIN/SUPERVISOR; correr ms_auth + ms_embalaje primero. El precio unitario es resuelto del lado del servidor por ms_embalaje. Borrar corre ultimo para que lectura de delalle encuentra la venta."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "idUsuario", "value": "1" },
+    { "key": "idSucursal", "value": "1" },
+    { "key": "idArticulo", "value": "1" },
+    { "key": "idVenta", "value": "1" },
+    { "key": "idDetalle", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "VentaController",
+      "item": [
+        {
+          "name": "Crear venta",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"idUsuario\": {{idUsuario}},\n  \"idSucursal\": {{idSucursal}},\n  \"fechaVta\": \"2026-06-21T12:00:00\",\n  \"detalles\": [\n    {\n      \"idArticulo\": {{idArticulo}},\n      \"idAdmision\": null,\n      \"cantidadArt\": 3,\n      \"precioUnitHistoricoArt\": 0,\n      \"precioAdmision\": 0\n    }\n  ]\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/api/v1/ventas", "host": ["{{baseUrl}}"], "path": ["api","v1","ventas"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "var j; try { j = pm.response.json(); } catch (e) { j = null; }",
+              "if (j && j.id !== undefined && j.id !== null) pm.collectionVariables.set(\"idVenta\", j.id);",
+              "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200,201]); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "Listar ventas",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v1/ventas", "host": ["{{baseUrl}}"], "path": ["api","v1","ventas"] } },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } } ]
+        },
+        {
+          "name": "Obtener venta por id",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v1/ventas/{{idVenta}}", "host": ["{{baseUrl}}"], "path": ["api","v1","ventas","{{idVenta}}"] } },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } } ]
+        },
+        {
+          "name": "Buscar venta",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v1/ventas/buscar?nroBoleta=1", "host": ["{{baseUrl}}"], "path": ["api","v1","ventas","buscar"], "query": [ { "key": "nroBoleta", "value": "1" } ] } },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } } ]
+        },
+        {
+          "name": "Ventas por sucursal",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v1/ventas/sucursal?id_sucursal={{idSucursal}}", "host": ["{{baseUrl}}"], "path": ["api","v1","ventas","sucursal"], "query": [ { "key": "id_sucursal", "value": "{{idSucursal}}" } ] } },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } } ]
+        }
+      ]
+    },
+    {
+      "name": "DetalleVentaController",
+      "item": [
+        {
+          "name": "Listar detalles",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v1/detalles", "host": ["{{baseUrl}}"], "path": ["api","v1","detalles"] } },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } } ]
+        },
+        {
+          "name": "Obtener venta por id",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v1/detalles/{{idDetalle}}", "host": ["{{baseUrl}}"], "path": ["api","v1","detalles","{{idDetalle}}"] } },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } } ]
+        },
+        {
+          "name": "Detalles por venta",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v1/detalles/venta/{{idVenta}}", "host": ["{{baseUrl}}"], "path": ["api","v1","detalles","venta","{{idVenta}}"] } },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } } ]
+        }
+      ]
+    },
+    {
+      "name": "Limpiar (anular + borrar - correr ultimo)",
+      "item": [
+        {
+          "name": "Anular venta",
+          "request": {
+            "method": "PUT", "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/ventas/anular/{{idVenta}}?id_usuario={{idUsuario}}", "host": ["{{baseUrl}}"], "path": ["api","v1","ventas","anular","{{idVenta}}"], "query": [ { "key": "id_usuario", "value": "{{idUsuario}}" } ] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } } ]
+        },
+        {
+          "name": "Borrar detalle",
+          "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/api/v1/detalles/{{idDetalle}}", "host": ["{{baseUrl}}"], "path": ["api","v1","detalles","{{idDetalle}}"] } },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200,204]); });" ] } } ]
+        },
+        {
+          "name": "Borrar venta",
+          "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/api/v1/ventas/{{idVenta}}", "host": ["{{baseUrl}}"], "path": ["api","v1","ventas","{{idVenta}}"] } },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200,204]); });" ] } } ]
+        }
+      ]
+    }
+  ]
+}

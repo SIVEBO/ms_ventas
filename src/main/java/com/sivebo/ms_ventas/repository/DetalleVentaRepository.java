@@ -8,7 +8,7 @@ import com.sivebo.ms_ventas.model.DetalleVenta;
 
 public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Long> {
 
-        List<DetalleVenta> findByVenta_Id(Long ventaId);
+        List<DetalleVenta> findByVentaId(Long ventaId);
 
-        void deleteByVenta_Id(Long ventaId);
+        void deleteByVentaId(Long ventaId);
 }

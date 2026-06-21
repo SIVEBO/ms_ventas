@@ -49,7 +49,7 @@ class VentaServiceTest {
             1L, 1L, 50L, 10L, FECHA, 10000L, 1900L, 11900L, TipoEstadoVenta.ANULADA);
 
     @Test
-    void getAll_retornaTodasLasVentas() {
+    void getAllRetornaTodasLasVentas() {
         when(ventaRepository.findAll()).thenReturn(List.of(VENTA_ACTIVA));
 
         List<VentaResponseDTO> result = service.getAll();
@@ -60,7 +60,7 @@ class VentaServiceTest {
     }
 
     @Test
-    void getById_encontrada_retornaDTO() {
+    void getByIdEncontradaRetornaDTO() {
         when(ventaRepository.findById(1L)).thenReturn(Optional.of(VENTA_ACTIVA));
 
         Optional<VentaResponseDTO> result = service.getById(1L);
@@ -70,14 +70,14 @@ class VentaServiceTest {
     }
 
     @Test
-    void getById_noExiste_retornaVacio() {
+    void getByIdNoExisteRetornaVacio() {
         when(ventaRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertTrue(service.getById(99L).isEmpty());
     }
 
     @Test
-    void getByNroBoleta_encontrada_retornaDTO() {
+    void getByNroBoletaEncontradaRetornaDTO() {
         when(ventaRepository.findByNroBoleta(1L)).thenReturn(Optional.of(VENTA_ACTIVA));
 
         Optional<VentaResponseDTO> result = service.getByNroBoleta(1L);
@@ -87,7 +87,7 @@ class VentaServiceTest {
     }
 
     @Test
-    void getByIdUsuario_retornaVentasDelUsuario() {
+    void getByIdUsuarioRetornaVentasDelUsuario() {
         when(ventaRepository.findByIdUsuario(50L)).thenReturn(List.of(VENTA_ACTIVA));
 
         List<VentaResponseDTO> result = service.getByIdUsuario(50L);
@@ -97,7 +97,7 @@ class VentaServiceTest {
     }
 
     @Test
-    void getByIdSucursal_sinFiltros_retornaTodasLasSucursal() {
+    void getByIdSucursalSinFiltrosRetornaTodasLasSucursal() {
         when(ventaRepository.findByIdSucursal(10L)).thenReturn(List.of(VENTA_ACTIVA));
 
         List<VentaResponseDTO> result = service.getByIdSucursal(10L, null, null, null);
@@ -107,7 +107,7 @@ class VentaServiceTest {
     }
 
     @Test
-    void getByIdSucursal_conEstado_filtraPorEstado() {
+    void getByIdSucursalConEstadoFiltraPorEstado() {
         when(ventaRepository.findByIdSucursalAndEstado(10L, TipoEstadoVenta.ACTIVA))
                 .thenReturn(List.of(VENTA_ACTIVA));
 
@@ -118,7 +118,7 @@ class VentaServiceTest {
     }
 
     @Test
-    void create_stockSuficiente_guardaVentaYDetalles() {
+    void createStockSuficienteGuardaVentaYDetalles() {
         DetalleVentaRequestDTO detalle = new DetalleVentaRequestDTO(1L, null, 2, 5000L, null);
         VentaRequestDTO dto = new VentaRequestDTO(50L, 10L, FECHA, List.of(detalle));
 
@@ -141,7 +141,7 @@ class VentaServiceTest {
     }
 
     @Test
-    void create_stockInsuficiente_lanzaMicroserviceValidationException() {
+    void createStockInsuficienteLanzaMicroserviceValidationException() {
         DetalleVentaRequestDTO detalle = new DetalleVentaRequestDTO(1L, null, 10, 5000L, null);
         VentaRequestDTO dto = new VentaRequestDTO(50L, 10L, FECHA, List.of(detalle));
 
@@ -153,7 +153,7 @@ class VentaServiceTest {
     }
 
     @Test
-    void create_registraMovimientoSiHaySesionAbierta() {
+    void createRegistraMovimientoSiHaySesionAbierta() {
         DetalleVentaRequestDTO detalle = new DetalleVentaRequestDTO(1L, null, 1, 10000L, null);
         VentaRequestDTO dto = new VentaRequestDTO(50L, 10L, FECHA, List.of(detalle));
 
@@ -173,7 +173,7 @@ class VentaServiceTest {
     }
 
     @Test
-    void anular_ventaExiste_cambiaEstadoYRegistraEgreso() {
+    void anularVentaExisteCambiaEstadoYRegistraEgreso() {
         Venta ventaOriginal = new Venta(1L, 1L, 50L, 10L, FECHA, 10000L, 1900L, 11900L, TipoEstadoVenta.ACTIVA);
 
         doNothing().when(webClientUtil).validateUserRole(eq(50L), any());
@@ -188,7 +188,7 @@ class VentaServiceTest {
     }
 
     @Test
-    void anular_ventaNoExiste_lanzaMicroserviceValidationException() {
+    void anularVentaNoExisteLanzaMicroserviceValidationException() {
         doNothing().when(webClientUtil).validateUserRole(anyLong(), any());
         when(ventaRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -196,9 +196,9 @@ class VentaServiceTest {
     }
 
     @Test
-    void create_precioResueltoDesdeEmbalaje_ignoraPrecioDelCliente() {
+    void createPrecioResueltoDesdeEmbalajeIgnoraPrecioDelCliente() {
         // RF-33: el cliente envía un precio falso (1L); el servidor debe persistir
-        // el precio autoritativo resuelto desde ms_embalaje (7000L).
+        // el precio autoritativo resuelto desde msEmbalaje (7000L).
         DetalleVentaRequestDTO detalle = new DetalleVentaRequestDTO(1L, null, 3, 1L, null);
         VentaRequestDTO dto = new VentaRequestDTO(50L, 10L, FECHA, List.of(detalle));
 
@@ -224,7 +224,7 @@ class VentaServiceTest {
     }
 
     @Test
-    void delete_eliminaCorrectamente_retornaTrue() {
+    void deleteEliminaCorrectamenteRetornaTrue() {
         doNothing().when(ventaRepository).deleteById(1L);
         when(ventaRepository.existsById(1L)).thenReturn(false);
 

@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("api/v1/detalles")
 @RequiredArgsConstructor
-@Tag(name = "Detalles de Venta", description = "Líneas de artículos de embalaje y servicios de envío en cada boleta (RF-30, RF-31)")
+@Tag(name = "Detalles de Venta", description = "Líneas de artículos de embalaje y servicios de envío en cada boleta")
 public class DetalleVentaController {
 
         private final DetalleVentaService detalleVentaService;
@@ -59,7 +59,7 @@ public class DetalleVentaController {
 
         @Operation(
                 summary = "Obtener detalles de una venta",
-                description = "Retorna todas las líneas de artículos y servicios de envío asociadas a una venta (RF-30, RF-31)"
+                description = "Retorna todas las líneas de artículos y servicios de envío asociadas a una venta"
         )
         @ApiResponses(value = {
                 @ApiResponse(responseCode = "200", description = "Detalles obtenidos exitosamente",

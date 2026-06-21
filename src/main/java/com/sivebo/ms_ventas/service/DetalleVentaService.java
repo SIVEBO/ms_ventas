@@ -44,7 +44,7 @@ public class DetalleVentaService {
 
         @Transactional(readOnly = true)
         public List<DetalleVentaResponseDTO> getByVentaId(Long ventaId) {
-                return detalleVentaRepository.findByVenta_Id(ventaId).stream().map(this::mapToDTO).toList();
+                return detalleVentaRepository.findByVentaId(ventaId).stream().map(this::mapToDTO).toList();
         }
 
         @Transactional

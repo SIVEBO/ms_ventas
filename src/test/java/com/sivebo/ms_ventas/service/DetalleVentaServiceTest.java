@@ -1,7 +1,9 @@
 package com.sivebo.ms_ventas.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,7 +36,7 @@ class DetalleVentaServiceTest {
             1L, VENTA, 200L, null, 2, 5000L, null);
 
     @Test
-    void getAll_retornasTodosLosDetalles() {
+    void getAllRetornasTodosLosDetalles() {
         when(detalleVentaRepository.findAll()).thenReturn(List.of(DETALLE));
 
         List<DetalleVentaResponseDTO> result = service.getAll();
@@ -46,7 +48,7 @@ class DetalleVentaServiceTest {
     }
 
     @Test
-    void getById_encontrado_retornaDTO() {
+    void getByIdEncontradoRetornaDTO() {
         when(detalleVentaRepository.findById(1L)).thenReturn(Optional.of(DETALLE));
 
         Optional<DetalleVentaResponseDTO> result = service.getById(1L);
@@ -57,15 +59,15 @@ class DetalleVentaServiceTest {
     }
 
     @Test
-    void getById_noExiste_retornaVacio() {
+    void getByIdNoExisteRetornaVacio() {
         when(detalleVentaRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertTrue(service.getById(99L).isEmpty());
     }
 
     @Test
-    void getByVentaId_retornaDetallesDeVenta() {
-        when(detalleVentaRepository.findByVenta_Id(1L)).thenReturn(List.of(DETALLE));
+    void getByVentaIdRetornaDetallesDeVenta() {
+        when(detalleVentaRepository.findByVentaId(1L)).thenReturn(List.of(DETALLE));
 
         List<DetalleVentaResponseDTO> result = service.getByVentaId(1L);
 
@@ -74,14 +76,14 @@ class DetalleVentaServiceTest {
     }
 
     @Test
-    void getByVentaId_ventaSinDetalles_retornaListaVacia() {
-        when(detalleVentaRepository.findByVenta_Id(99L)).thenReturn(List.of());
+    void getByVentaIdVentaSinDetallesRetornaListaVacia() {
+        when(detalleVentaRepository.findByVentaId(99L)).thenReturn(List.of());
 
         assertTrue(service.getByVentaId(99L).isEmpty());
     }
 
     @Test
-    void delete_eliminaYRetornaTrue() {
+    void deleteEliminaYRetornaTrue() {
         doNothing().when(detalleVentaRepository).deleteById(1L);
         when(detalleVentaRepository.existsById(1L)).thenReturn(false);
 

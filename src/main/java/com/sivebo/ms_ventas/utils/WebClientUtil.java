@@ -63,7 +63,7 @@ public class WebClientUtil {
                         if (response == null) {
                                 throw new MicroserviceValidationException("Usuario no encontrado");
                         }
-                        String rol = String.valueOf(response.get("rol"));
+                        String rol = String.valueOf(response.get("nombreRol"));
                         if (!"ADMIN".equalsIgnoreCase(rol) && !"SUPERVISOR".equalsIgnoreCase(rol)) {
                                 throw new MicroserviceForbiddenException(
                                         "Usuario no tiene permiso para anular ventas (rol requerido: ADMIN o SUPERVISOR)");
@@ -79,8 +79,6 @@ public class WebClientUtil {
                 }
         }
 
-        // ms_sucursales no expone GET /{id} (solo PUT/PATCH); la búsqueda por id es vía
-        // /buscar?id= (mismo patrón que usa ms_admision). Valida que la sucursal exista.
         public void validateSucursalExiste(Long id, WebClient webClient) {
                 try {
                         webClient.get()
@@ -98,8 +96,6 @@ public class WebClientUtil {
                 }
         }
 
-        // RF-33: resolves the authoritative unit price from ms_embalaje at sale time,
-        // so the persisted historic price cannot be tampered with by the client.
         public Long resolvePrecioArticulo(Long idArt, WebClient webClient) {
                 try {
                         Map<String, Object> response = webClient.get()
@@ -121,7 +117,6 @@ public class WebClientUtil {
                 }
         }
 
-        // RF-29: returns true if the branch has sufficient stock for the article
         public Boolean verificarStock(Long idArt, Long idSucursal, Integer cantidad, WebClient webClient) {
                 try {
                         Boolean result = webClient.get()
@@ -138,7 +133,6 @@ public class WebClientUtil {
                 }
         }
 
-        // RF-28: decrements stock after a confirmed sale; non-blocking on failure
         public void descontarStock(Long idArt, Long idSucursal, Integer cantidad, WebClient webClient) {
                 try {
                         webClient.patch()
@@ -153,7 +147,6 @@ public class WebClientUtil {
                 }
         }
 
-        // RF-37: resolves the active caja session id for a branch (sucursal → caja → sesión abierta)
         public Optional<Long> resolveIdSesionAbierta(Long idSucursal, WebClient webClient) {
                 try {
                         Map<String, Object> caja = webClient.get()
@@ -177,7 +170,6 @@ public class WebClientUtil {
                 }
         }
 
-        // RF-37/RF-34: registers an INGRESO or EGRESO movimiento in ms_finanzas; non-blocking on failure
         public void registrarMovimiento(Long idSesion, String tipo, Long monto, Long idVenta, WebClient webClient) {
                 try {
                         Map<String, Object> body = Map.of(
